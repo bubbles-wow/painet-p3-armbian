@@ -229,19 +229,15 @@ runs:
             # Remove the decompressed input .img to free up space; the original .img.gz is kept.
             rm -f *-trunk_*.img
             # Compress any remaining .img files (e.g. user-supplied extras). Guard against an
-            # empty glob and prefer pigz when present, otherwise fall back to gzip.
+            # empty glob and compress with the highest xz compression ratio.
             shopt -s nullglob
             imgs=( *.img )
             shopt -u nullglob
             if [[ "${#imgs[@]}" -gt 0 ]]; then
-                if command -v pigz >/dev/null 2>&1; then
-                    pigz -qf "${imgs[@]}"
-                else
-                    gzip -qf "${imgs[@]}"
-                fi
+                xz -9ef "${imgs[@]}"
             fi
-            if [[ -z "$(ls *.img.gz 2>/dev/null)" ]]; then
-                echo "error: No .img.gz file produced in [ ${PWD} ], aborting."
+            if [[ -z "$(ls *.img.xz 2>/dev/null)" ]]; then
+                echo "error: No .img.xz file produced in [ ${PWD} ], aborting."
                 echo "PACKAGED_STATUS=failure" >> ${GITHUB_ENV}
                 exit 1
             fi

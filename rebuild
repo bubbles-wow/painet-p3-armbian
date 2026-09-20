@@ -1317,12 +1317,8 @@ clean_tmp() {
     losetup -d ${loop_new} 2>/dev/null
 
     cd "${tmp_outpath}"
-    # Compress Armbian image file. Prefer pigz when available; otherwise fall back to gzip.
-    if command -v pigz >/dev/null 2>&1; then
-        pigz -qf "${armbian_filename}"
-    else
-        gzip -qf "${armbian_filename}"
-    fi
+    # Compress Armbian image file with the highest xz compression ratio.
+    xz -9ef "${armbian_filename}"
     # Move Armbian files to the output directory
     mv -f "${armbian_filename}"* -t "${armbian_outputpath}"
 
