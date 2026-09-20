@@ -169,8 +169,8 @@ runs:
             # Decompress the Armbian image file. Use -k to keep the original
             # compressed file so its sha256sum is preserved for upload dedup.
             case "${down_file}" in
-                *.img.gz) gzip -dkf "${down_file}" 2>/dev/null && sync ;;
-                *.img.xz) xz -dk "${down_file}" 2>/dev/null && sync ;;
+                *.img.gz) gzip -df "${down_file}" 2>/dev/null && sync ;;
+                *.img.xz) xz -d "${down_file}" 2>/dev/null && sync ;;
                 *.zip)    unzip -o "${down_file}" 2>/dev/null && sync ;;
             esac
             echo -e "Armbian file: \n$(ls -lh *.img 2>/dev/null)"
