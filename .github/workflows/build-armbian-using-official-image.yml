@@ -16,7 +16,7 @@ on:
       armbian_board:
         description: "Select device board."
         required: false
-        default: "amlogic"
+        default: "painet-p3"
         type: choice
         options:
           - allwinner
@@ -309,9 +309,10 @@ on:
       armbian_edition:
         description: "Select image edition type."
         required: false
-        default: "server"
+        default: "minimal"
         type: choice
         options:
+          - minimal
           - server
           - desktop
           - beta
@@ -334,6 +335,11 @@ jobs:
     if: ${{ github.event.repository.owner.id == github.event.sender.id }}
     permissions:
       contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        armbian_release: [trixie, resolute]
 
     steps:
       - name: Checkout
@@ -392,28 +398,19 @@ jobs:
           armbian_url="${{ inputs.armbian_url }}"
           if  [[ -z "${armbian_url}" ]]; then
               armbian_site="https://armbian.tnahosting.net/dl/odroidn2/archive/"
-              armbian_name="Armbian.*noble.*.img.xz"
+              armbian_name="Armbian.*${{ matrix.armbian_release }}.*.img.xz"
               armbian_file=$(curl -s "${armbian_site}" | grep -oE "${armbian_name}" | head -n 1)
               if [[ -n "${armbian_file}" ]]; then
                   armbian_url="${armbian_site}${armbian_file}"
               else
-                  echo -e "Error: No valid Armbian image found at: [ ${armbian_site} ]"
+                  echo -e "Error: No valid Armbian image found at: [ ${armbian_site} ] for release ${{ matrix.armbian_release }}"
                   exit 1
               fi
           fi
           echo "ARMBIAN_URL=${armbian_url}" >> ${GITHUB_ENV}
 
-          # Detect the OS release name from the URL
-          set_release=""
-          ARR_RELEASE=("resolute" "noble" "trixie" "bookworm")
-          i=1
-          for r in ${ARR_RELEASE[*]}; do
-              if [[ "${armbian_url}" == *"${r}"* ]]; then
-                  set_release="_${r}"
-                  break
-              fi
-              let i++
-          done
+          # Use matrix release name directly
+          set_release="_${{ matrix.armbian_release }}"
 
           mkdir -p /builder/build
           ln -sf /builder/build ${{ github.workspace }}/build
