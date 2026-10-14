@@ -288,7 +288,7 @@ on:
       kernel_repo:
         description: "Set the kernel repository."
         required: false
-        default: "bubbles-wow/armbian-kernel"
+        default: "ophub/armbian-kernel"
         type: choice
         options:
           - ophub/kernel
@@ -402,7 +402,7 @@ jobs:
           # Resolve the Armbian image download URL
           armbian_url="${{ inputs.armbian_url }}"
           if  [[ -z "${armbian_url}" ]]; then
-              armbian_site="https://armbian.tnahosting.net/dl/odroidn2/archive/"
+              armbian_site="https://armbian.tnahosting.net/dl/bananapim4zero/archive/"
               armbian_name="Armbian.*${{ matrix.armbian_release }}.*.img.xz"
               armbian_file=$(curl -s "${armbian_site}" | grep -oE "${armbian_name}" | head -n 1)
               if [[ -n "${armbian_file}" ]]; then
